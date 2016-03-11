@@ -17,6 +17,13 @@ var AxeType = {
     DATA: 3
 };
 
+var Axes = {
+    columns: 1,
+    rows: 2,
+    data: 3,
+    fields: null
+};
+
 /**
  * Creates a new instance of an axe's dimensions list.
  * @class
@@ -172,3 +179,11 @@ module.exports = function(pgrid, type) {
  * @enum {Number}
  */
 module.exports.Type = AxeType;
+
+module.exports.getAxe = function(axeValue) {
+    for (var type in Axes) {
+        if (Axes[type] === axeValue)
+            return type;
+    }
+    throw new Error('Invalid axe type:', axeValue);
+};

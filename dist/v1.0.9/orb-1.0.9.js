@@ -1,10 +1,10 @@
 /**
- * orb v1.0.9, Pivot grid javascript library.
+ * orb v1.0.9, Pivot table javascript library.
  *
- * Copyright (c) 2014-2015 Najmeddine Nouri <devnajm@gmail.com>.
+ * Copyright (c) 2014-2016 Najmeddine Nouri <devnajm@gmail.com>.
  *
  * @version v1.0.9
- * @link http://nnajm.github.io/orb/
+ * @link http://orbjs.net/
  * @license MIT
  */
 
@@ -183,6 +183,13 @@
                 DATA: 3
             };
 
+            var Axes = {
+                columns: 1,
+                rows: 2,
+                data: 3,
+                fields: null
+            };
+
             module.exports = function(pgrid, type) {
 
                 var self = this;
@@ -307,6 +314,13 @@
 
             module.exports.Type = AxeType;
 
+            module.exports.getAxe = function(axeValue) {
+                for (var type in Axes) {
+                    if (Axes[type] === axeValue)
+                        return type;
+                }
+                throw new Error('Invalid axe type:', axeValue);
+            };
         }, {
             "./orb.dimension": 5,
             "./orb.utils": 17
@@ -501,6 +515,7 @@
                 this.height = config.height;
                 this.toolbar = config.toolbar;
                 this.theme = themeManager;
+                this.onDrop = config.onDrop;
 
                 themeManager.current(config.theme);
 
@@ -646,6 +661,11 @@
                 };
 
                 this.moveField = function(fieldname, oldaxetype, newaxetype, position) {
+                    if (this.onDrop) { //if a callback fn is defined we call it
+                        var accepted = this.onDrop(fieldname, axe.getAxe(oldaxetype), axe.getAxe(newaxetype));
+                        if (!accepted)
+                            return false;
+                    }
 
                     var oldaxe, oldposition;
                     var newaxe;
@@ -3128,7 +3148,6 @@
                     nodes.rowHeadersTable.size = reactUtils.getSize(nodes.rowHeadersTable.node);
 
                     // get row buttons container width
-                    //nodes.rowButtonsContainer.node.style.width = '';
                     var rowButtonsContainerWidth = reactUtils.getSize(nodes.rowButtonsContainer.node.children[0]).width;
 
                     // get array of dataCellsTable column widths
@@ -3154,9 +3173,6 @@
                         nodes.rowHeadersTable.size.width += rowDiff;
                         nodes.rowHeadersTable.widthArray[nodes.rowHeadersTable.widthArray.length - 1] += rowDiff;
                     }
-
-                    //nodes.rowButtonsContainer.node.style.width = (rowHeadersTableWidth + 1) + 'px';
-                    //nodes.rowButtonsContainer.node.style.paddingRight = (rowHeadersTableWidth + 1 - rowButtonsContainerWidth + 17) + 'px';
 
                     // Set dataCellsTable cells widths according to the computed dataCellsTableMaxWidthArray
                     reactUtils.updateTableColGroup(nodes.dataCellsTable.node, dataCellsTableMaxWidthArray);
@@ -3537,7 +3553,6 @@
                 }
             }
 
-
             module.exports.PivotRow = react.createClass({
                 render: function() {
                     var self = this;
@@ -3794,8 +3809,6 @@
 
                 return classname;
             }
-
-
 
             var dragManager = module.exports.DragManager = (function() {
 

@@ -202,6 +202,7 @@ module.exports.config = function(config) {
     this.height = config.height;
     this.toolbar = config.toolbar;
     this.theme = themeManager;
+    this.onDrop = config.onDrop;
 
     themeManager.current(config.theme);
 
@@ -348,6 +349,11 @@ module.exports.config = function(config) {
 
 
     this.moveField = function(fieldname, oldaxetype, newaxetype, position) {
+        if(this.onDrop) { //if a callback fn is defined we call it
+            var accepted = this.onDrop(fieldname, axe.getAxe(oldaxetype), axe.getAxe(newaxetype));
+            if(!accepted)
+                return false;
+        }
 
         var oldaxe, oldposition;
         var newaxe;
